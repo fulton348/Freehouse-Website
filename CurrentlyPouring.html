@@ -71,3 +71,106 @@
 
     .section-label {
       font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0.4;
+      margin: 1.5rem 0 0.5rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      color: inherit;
+    }
+
+    .loading {
+      font-size: 0.82rem;
+      opacity: 0.5;
+      padding: 1rem 0;
+    }
+
+    .error {
+      font-size: 0.82rem;
+      opacity: 0.6;
+      padding: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="updated" id="updated-date"></div>
+
+    <div class="section-label">Freehouse Originals</div>
+    <div id="beer-list"><div class="loading">Loading draft list...</div></div>
+
+    <div class="section-label">Guest Taps</div>
+
+    <div class="beer">
+      <div class="beer-header"><span class="beer-name">Potter's Imperial Dry Cider</span></div>
+      <div class="beer-desc">A crisp, dry apple cider with a clean finish. Refreshing and sessionable with just the right amount of apple character.</div>
+    </div>
+
+    <div class="section-label">Non-Alcoholic</div>
+
+    <div class="beer">
+      <div class="beer-header"><span class="beer-name">Island Time Kombucha</span></div>
+      <div class="beer-desc">Brewed low and slow right here in Charleston, SC. Island Time brings the island escapism in every sip — live cultures, natural ingredients, and good vibes on tap.</div>
+    </div>
+
+    <div class="beer">
+      <div class="beer-header"><span class="beer-name">Organic Lemonade</span></div>
+      <div class="beer-desc">Tart, sweet, and ice cold. Everything you need on a hot Lowcountry day.</div>
+    </div>
+
+  </div>
+
+  <script>
+    const descriptions = {
+      "Ashley Farmhouse": "Complex, crisp, and truly a Farmhouse classic. Brewed with Belgian yeast, this saison naturally brings out esters of banana and clove, plus orange peel added for balance.",
+      "Green Door IPA": "Generous additions of organic American hops, citrusy, grassy, and herbal, combine with just enough malt backbone to strike the perfect balance. Open the Green Door.",
+      "Folly's Pride Blonde": "Crisp golden session ale, with a mildly bitter citrus finish. Perfect for the porch, the beach or every day. Enjoy the Folly. Drink your Pride!",
+      "Battery Brown Ale": "Quaffable brown ale for all seasons. Medium dry, smooth, and roasty, with a light sweetness in the finish.",
+      "Premium Lager": "A pure and classic all-malt lager brewed in the German Helles style. Smooth and dry with a grainy sweetness in the finish. This is premium beer.",
+      "Fore Y'all Muni Lager": "A crisp, light lager brewed with organic rice, malted barley, Perle hops, and helles yeast. Brewed in partnership with Charleston Municipal Golf Course.",
+      "SummerFest Lager": "Light in body but coming in hearty, this crisp golden lager is perfect for warm weather sipping.",
+      "HooDoo Imperial Stout": "Dark and roasty with organic flaked oats providing a silky backbone for rich chocolate and coffee flavors imparted by the malt.",
+      "Barrel Aged HooDoo Imperial Stout": "Our classic HooDoo aged in oak barrels for added depth and complexity. Rich chocolate and coffee notes meet a warming, oaky finish.",
+      "Frosty Boi White Lager": "Your favorite lager, intensified. Warmer and heavier notes, an excellent lager for chillier days in the Lowcountry.",
+      "Brasstown Porter": "Crisp and light up front, with rich waves of chocolate and toffee on the finish.",
+      "Sourlina Peche": "Feeling peachy? Native South Carolina peach sour ale. Local organic peaches blended with native yeast cultures.",
+      "Whitewater Wheat": "Sweet wheat notes make it the perfect warm weather sipper. Crushable and easy-drinking, brewed to bring the sunshine.",
+      "Agave Rose Seltzer": "Gluten free seltzer brewed with organic blue agave and hibiscus flowers. Smooth, crushable, pink-hued delight.",
+      "Spottail Amber Ale": "A deep copper amber with caramel malt backbone and a clean, smooth finish. Whether it's a fish or a buzz, you're certain to catch one with this Amber Ale.",
+    };
+
+    async function loadBeers() {
+      const list = document.getElementById("beer-list");
+      try {
+        const res = await fetch("/.netlify/functions/beers");
+        const data = await res.json();
+
+        if (!data.beers || data.beers.length === 0) {
+          list.innerHTML = '<div class="error">Draft list unavailable — check back soon.</div>';
+          return;
+        }
+
+        list.innerHTML = data.beers.map(name => `
+          <div class="beer">
+            <div class="beer-header"><span class="beer-name">${name}</span></div>
+            ${descriptions[name] ? `<div class="beer-desc">${descriptions[name]}</div>` : ""}
+          </div>
+        `).join("");
+
+        sendHeight();
+
+      } catch (err) {
+        list.innerHTML = '<div class="error">Draft list unavailable — check back soon.</div>';
+        sendHeight();
+      }
+    }
+
+    loadBeers();
+
+    const d = new Date();
+    document.getElementById("updated-date").textContent =
+      "Last updated " + d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  </script>
+</body>
+</html>
