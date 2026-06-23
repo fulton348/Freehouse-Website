@@ -151,12 +151,15 @@
           return;
         }
 
-        list.innerHTML = data.beers.map(name => `
+        list.innerHTML = data.beers.map(beer => {
+          const desc = beer.description || descriptions[beer.name] || "";
+          return `
           <div class="beer">
-            <div class="beer-header"><span class="beer-name">${name}</span></div>
-            ${descriptions[name] ? `<div class="beer-desc">${descriptions[name]}</div>` : ""}
+            <div class="beer-header"><span class="beer-name">${beer.name}</span></div>
+            ${desc ? `<div class="beer-desc">${desc}</div>` : ""}
           </div>
-        `).join("");
+        `;
+        }).join("");
 
         // Send updated height after beers load
         sendHeight();
@@ -175,3 +178,4 @@
   </script>
 </body>
 </html>
+
