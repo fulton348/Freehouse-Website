@@ -14,17 +14,20 @@ export const handler = async function (event, context) {
     const data = await response.json();
     const items = data.objects || [];
 
+    const exclude = ["Beer Flight of Four", "Burpees Promo Draft Beer", "Oktoberfest Mug Deal", "Potter's Imperial Dry Cider"];
+
     const draftBeers = items
       .filter((item) => {
         const cats = (item.item_data?.categories || []).map((c) => c.id);
         return cats.includes(CHARLESTON_DRAFT_CATEGORY);
       })
-      .map((item) => item.item_data.name)
-      .filter((name) => {
-        const exclude = ["Beer Flight of Four", "Burpees Promo Draft Beer", "Oktoberfest Mug Deal", "Potter's Imperial Dry Cider"];
-        return !exclude.includes(name);
-      })
-      .sort();
+      .filter((item) => !exclude.includes(item.item_data.name))
+      .map((item) => ({
+        name: item.item_data.name,
+        // Square's catalog description field, if filled in
+        description: item.item_data.description || item.item_data.description_html || null,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
 
     return {
       statusCode: 200,
